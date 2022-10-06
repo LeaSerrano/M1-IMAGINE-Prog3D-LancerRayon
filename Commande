@@ -1,0 +1,3 @@
+make clean && make && ./main
+
+clean permet que lorsque l'on modifie un .h, cela soit pris en compte dans la compilation

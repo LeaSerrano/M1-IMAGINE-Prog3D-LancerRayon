@@ -17,9 +17,9 @@ struct RaySquareIntersection{
 class Square : public Mesh {
 public:
     Vec3 m_normal;
-    Vec3 m_bottom_left;
-    Vec3 m_right_vector;
-    Vec3 m_up_vector;
+    Vec3 m_bottom_left;//point en bas à gauche
+    Vec3 m_right_vector;//vecteur vers la droite
+    Vec3 m_up_vector;//vecteur vers le haut
 
     Square() : Mesh() {}
     Square(Vec3 const & bottomLeft , Vec3 const & rightVector , Vec3 const & upVector , float width=1. , float height=1. ,

@@ -16,6 +16,9 @@ enum LightType {
     LightType_Quad
 };
 
+const unsigned int mesh_type = 0;
+const unsigned int
+const unsigned int
 
 struct Light {
     Vec3 material;
@@ -35,9 +38,9 @@ struct Light {
 
 struct RaySceneIntersection{
     bool intersectionExists;
-    unsigned int typeOfIntersectedObject;
-    unsigned int objectIndex;
-    float t;
+    unsigned int typeOfIntersectedObject; //dans quelle liste aller cherche liste des mesh, square, sphere
+    unsigned int objectIndex;// indice dans la liste des mesh, square ...
+    float t; //permettre de comparer toutes les intersection
     RayTriangleIntersection rayMeshIntersection;
     RaySphereIntersection raySphereIntersection;
     RaySquareIntersection raySquareIntersection;
@@ -80,16 +83,22 @@ public:
     RaySceneIntersection computeIntersection(Ray const & ray) {
         RaySceneIntersection result;
         //TODO calculer les intersections avec les objets de la scene et garder la plus proche
+
+        //on apelle les intersect des sphere, des square
+
+        //position = origin + t*dIJ -> pour avoir la sphere la plus proche
+        //on veut tous les t >= 0 et on veit savoir lesquels sont avant lesquels
+        //on va comparer les t de toutes les intersections pour savoir quel objet est le plus proche
+
         return result;
     }
 
 
-
-
-
     Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces ) {
-
         //TODO RaySceneIntersection raySceneIntersection = computeIntersection(ray);
+
+    //une fois qu'on a le pt intersection, on va ensuite reappeler raytrace pour lancer un rayon avec la direction le rayon réfléchi et l'origine notre point d'intersection jusqu'à un nb (on peut dire 5)
+
         Vec3 color;
         return color;
     }
@@ -97,6 +106,10 @@ public:
 
     Vec3 rayTrace( Ray const & rayStart ) {
         //TODO appeler la fonction recursive
+
+        //pour i, j de l'image du rendu
+        //colorIJ = rayTraceR(r(i, j))
+
         Vec3 color;
         return color;
     }

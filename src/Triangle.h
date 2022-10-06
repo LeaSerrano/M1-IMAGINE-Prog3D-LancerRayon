@@ -7,7 +7,7 @@
 struct RayTriangleIntersection{
     bool intersectionExists;
     float t;
-    float w0,w1,w2;
+    float w0,w1,w2;//coordonnées barycentrique, permettra de faire les calcul de hsading où si le point est contenu dans le triangle w2 = Aire(T2)/Aire(T), p = w0*v0 + w1*v1 + w2*v2 -> coordonnées du point p, n = w0n0 + w1n1 + w2n2 -> normale du point p
     unsigned int tIndex;
     Vec3 intersection;
     Vec3 normal;

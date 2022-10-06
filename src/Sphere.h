@@ -8,10 +8,10 @@
 struct RaySphereIntersection{
     bool intersectionExists;
     float t;
-    float theta,phi;
-    Vec3 intersection;
-    Vec3 secondintersection;
-    Vec3 normal;
+    float theta,phi;//coordonnées sphériques
+    Vec3 intersection; 
+    Vec3 secondintersection;//dans le cas où on fait de la réfraction, on a deux intersection
+    Vec3 normal;//normale à une sphère (position du point - le centre normalisé)
 };
 
 static
@@ -85,6 +85,11 @@ public:
     RaySphereIntersection intersect(const Ray &ray) const {
         RaySphereIntersection intersection;
         //TODO calcul l'intersection rayon sphere
+        /*for (int i = 0; i < (ray[1]-ray[0]); i++)
+        if ((m_center-ray[0])*(m_center-ray[0]) == pow(m_radius, 2)) {
+            
+        }*/
+
         return intersection;
     }
 };
