@@ -26,6 +26,7 @@ public:
     float squareDistance( Vec3 const & p ) const {
         float result;
         //TODO completer
+        result = p[0]*p[0] + p[1]*p[1] + p[2]*p[2];
         return result;
     }
     float distance( Vec3 const & p ) const {

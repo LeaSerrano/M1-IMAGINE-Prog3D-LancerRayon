@@ -16,9 +16,9 @@ enum LightType {
     LightType_Quad
 };
 
-const unsigned int mesh_type = 0;
+/*const unsigned int mesh_type = 0;
 const unsigned int
-const unsigned int
+const unsigned int*/
 
 struct Light {
     Vec3 material;
@@ -96,8 +96,7 @@ public:
 
     Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces ) {
         //TODO RaySceneIntersection raySceneIntersection = computeIntersection(ray);
-
-    //une fois qu'on a le pt intersection, on va ensuite reappeler raytrace pour lancer un rayon avec la direction le rayon réfléchi et l'origine notre point d'intersection jusqu'à un nb (on peut dire 5)
+        //une fois qu'on a le pt intersection, on va ensuite reappeler raytrace pour lancer un rayon avec la direction le rayon réfléchi et l'origine notre point d'intersection jusqu'à un nb (on peut dire 5)
 
         Vec3 color;
         return color;
@@ -111,6 +110,9 @@ public:
         //colorIJ = rayTraceR(r(i, j))
 
         Vec3 color;
+        int nb = 480;
+        color = rayTraceRecursive(rayStart, nb);
+
         return color;
     }
 

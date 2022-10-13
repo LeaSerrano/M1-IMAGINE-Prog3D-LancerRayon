@@ -85,11 +85,17 @@ public:
     RaySphereIntersection intersect(const Ray &ray) const {
         RaySphereIntersection intersection;
         //TODO calcul l'intersection rayon sphere
-        /*for (int i = 0; i < (ray[1]-ray[0]); i++)
-        if ((m_center-ray[0])*(m_center-ray[0]) == pow(m_radius, 2)) {
-            
-        }*/
-
+        int distance = sqrt(pow((ray.direction()[0] - ray.origin()[0]), 2) + pow((ray.direction()[1] - ray.origin()[1]), 2) + pow((ray.direction()[2] - ray.origin()[2]), 2));
+        Vec3 P;
+        for (int i = 0; i < distance; i++) {
+            P = ray.origin() + i*ray.direction();
+            if (Vec3::dot((P-m_center), (P-m_center)) == pow(m_radius, 2)) {
+                intersection.intersectionExists = true;
+                intersection.intersection = Vec3(ray.origin()[0] + i*ray.direction()[0], ray.origin()[1] + i*ray.direction()[1], ray.origin()[2] + i*ray.direction()[2]);
+                return intersection;
+            }
+        }
+        intersection.intersectionExists = false;
         return intersection;
     }
 };
