@@ -87,11 +87,39 @@ public:
         //TODO calcul l'intersection rayon sphere
         int distance = sqrt(pow((ray.direction()[0] - ray.origin()[0]), 2) + pow((ray.direction()[1] - ray.origin()[1]), 2) + pow((ray.direction()[2] - ray.origin()[2]), 2));
         Vec3 P;
+        float a, b, k, t1, t2;
         for (int i = 0; i < distance; i++) {
             P = ray.origin() + i*ray.direction();
             if (Vec3::dot((P-m_center), (P-m_center)) == pow(m_radius, 2)) {
+                a = Vec3::dot(ray.direction(), ray.direction());
+                b = Vec3::dot(2*ray.direction(), ray.origin()-m_center);
+                k = Vec3::dot(ray.origin()-m_center, ray.origin()-m_center)-pow(m_radius, 2);
+
+                t1 = (-b+sqrt(pow(b, 2)-4*a*k))/2*a;
+                t2 = (-b-sqrt(pow(b, 2)-4*a*k))/2*a;
+
+                if (t1 > 0 && t2 > 0) {
+                    if (t1 > t2) {
+                        intersection.t = t2;
+                    }
+                    else {
+                        intersection.t = t1;
+                    }
+                }
+                else if (t1 > 0 && t2 < 0) {
+                    intersection.t = t1;
+                }
+                else if (t1 < 0 && t2 > 0) {
+                    intersection.t = t2;
+                }
+
                 intersection.intersectionExists = true;
                 intersection.intersection = Vec3(ray.origin()[0] + i*ray.direction()[0], ray.origin()[1] + i*ray.direction()[1], ray.origin()[2] + i*ray.direction()[2]);
+                /*Vec3 SphericalCoordinates = SphericalCoordinatesToEuclidean(intersection.intersection);
+                intersection.theta = SphericalCoordinates[0];
+                intersection.phi = SphericalCoordinates[1];
+                intersection.normal = intersection.intersection - m_center;*/
+                std::cout << intersection.intersectionExists << std::endl;
                 return intersection;
             }
         }

@@ -87,8 +87,24 @@ public:
         //on apelle les intersect des sphere, des square
 
         //position = origin + t*dIJ -> pour avoir la sphere la plus proche
-        //on veut tous les t >= 0 et on veit savoir lesquels sont avant lesquels
+        //on veut tous les t >= 0 et on veut savoir lesquels sont avant lesquels
         //on va comparer les t de toutes les intersections pour savoir quel objet est le plus proche
+        //result.intersectionExists = true;
+
+        result.t = FLT_MAX;
+
+        for (int i = 0; i < spheres.size(); i++) {
+            RaySphereIntersection raySphere = spheres[i].intersect(ray);
+            if (raySphere.t >= 0 && raySphere.t < result.t) {
+                if (raySphere.intersectionExists) {
+                    result.raySphereIntersection = spheres[i].intersect(ray);
+                    result.intersectionExists = true;
+                    result.objectIndex = i;
+                    result.typeOfIntersectedObject = 1;
+                    result.t = result.raySphereIntersection.t;
+                }
+            }
+        }
 
         return result;
     }
@@ -110,8 +126,11 @@ public:
         //colorIJ = rayTraceR(r(i, j))
 
         Vec3 color;
-        int nb = 480;
-        color = rayTraceRecursive(rayStart, nb);
+        RaySceneIntersection intersectScene = computeIntersection(rayStart);
+
+        if (intersectScene.objectIndex == 1) {
+            color = spheres[intersectScene.objectIndex].material.diffuse_material;
+        }
 
         return color;
     }
