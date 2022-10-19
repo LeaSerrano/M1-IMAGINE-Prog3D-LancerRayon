@@ -44,7 +44,7 @@ struct RaySceneIntersection{
     RayTriangleIntersection rayMeshIntersection;
     RaySphereIntersection raySphereIntersection;
     RaySquareIntersection raySquareIntersection;
-    RaySceneIntersection() : intersectionExists(false) , t(FLT_MAX) {}
+    //RaySceneIntersection() : intersectionExists(false) , t(FLT_MAX) {}
 };
 
 
@@ -94,14 +94,16 @@ public:
         result.t = FLT_MAX;
 
         for (int i = 0; i < spheres.size(); i++) {
-            RaySphereIntersection raySphere = spheres[i].intersect(ray);
+            //std::cout << i << " " << spheres.size() << std::endl;
+            RaySphereIntersection raySphere = spheres[0].intersect(ray);
             if (raySphere.t >= 0 && raySphere.t < result.t) {
                 if (raySphere.intersectionExists) {
-                    result.raySphereIntersection = spheres[i].intersect(ray);
+                    result.raySphereIntersection = raySphere;
                     result.intersectionExists = true;
-                    result.objectIndex = i;
+                    //std::cout << "t1 : " << result.intersectionExists << std::endl;
+                    result.objectIndex = 0;
                     result.typeOfIntersectedObject = 1;
-                    result.t = result.raySphereIntersection.t;
+                    result.t = raySphere.t;
                 }
             }
         }
@@ -128,9 +130,15 @@ public:
         Vec3 color;
         RaySceneIntersection intersectScene = computeIntersection(rayStart);
 
-        if (intersectScene.objectIndex == 1) {
+        //std::cout << "t2 : " << intersectScene.intersectionExists << std::endl;
+
+        if (intersectScene.typeOfIntersectedObject == 1) {
+            //std::cout << intersectScene.objectIndex << std::endl;
             color = spheres[intersectScene.objectIndex].material.diffuse_material;
+            //std::cout << spheres[intersectScene.objectIndex].material.diffuse_material << std::endl;
         }
+
+        //std::cout << color << std::endl;
 
         return color;
     }

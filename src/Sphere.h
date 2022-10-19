@@ -115,11 +115,12 @@ public:
 
                 intersection.intersectionExists = true;
                 intersection.intersection = Vec3(ray.origin()[0] + i*ray.direction()[0], ray.origin()[1] + i*ray.direction()[1], ray.origin()[2] + i*ray.direction()[2]);
+                //std::cout << intersection << std::endl;
                 /*Vec3 SphericalCoordinates = SphericalCoordinatesToEuclidean(intersection.intersection);
                 intersection.theta = SphericalCoordinates[0];
                 intersection.phi = SphericalCoordinates[1];
                 intersection.normal = intersection.intersection - m_center;*/
-                std::cout << intersection.intersectionExists << std::endl;
+                std::cout << intersection.intersection << std::endl;
                 return intersection;
             }
         }
