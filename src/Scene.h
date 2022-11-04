@@ -44,7 +44,7 @@ struct RaySceneIntersection{
     RayTriangleIntersection rayMeshIntersection;
     RaySphereIntersection raySphereIntersection;
     RaySquareIntersection raySquareIntersection;
-    //RaySceneIntersection() : intersectionExists(false) , t(FLT_MAX) {}
+    RaySceneIntersection() : intersectionExists(false) , t(FLT_MAX) {}
 };
 
 
@@ -81,7 +81,6 @@ public:
 
 
     RaySceneIntersection computeIntersection(Ray const & ray) {
-        RaySceneIntersection result;
         //TODO calculer les intersections avec les objets de la scene et garder la plus proche
 
         //on apelle les intersect des sphere, des square
@@ -91,20 +90,17 @@ public:
         //on va comparer les t de toutes les intersections pour savoir quel objet est le plus proche
         //result.intersectionExists = true;
 
-        result.t = FLT_MAX;
+        RaySceneIntersection result;
+        RaySphereIntersection raySphere;
 
         for (int i = 0; i < spheres.size(); i++) {
-            //std::cout << i << " " << spheres.size() << std::endl;
-            RaySphereIntersection raySphere = spheres[0].intersect(ray);
-            if (raySphere.t >= 0 && raySphere.t < result.t) {
-                if (raySphere.intersectionExists) {
-                    result.raySphereIntersection = raySphere;
-                    result.intersectionExists = true;
-                    //std::cout << "t1 : " << result.intersectionExists << std::endl;
-                    result.objectIndex = 0;
-                    result.typeOfIntersectedObject = 1;
-                    result.t = raySphere.t;
-                }
+            raySphere = spheres[i].intersect(ray);
+            if(raySphere.t >= 0 && raySphere.t < result.t && raySphere.intersectionExists){
+                result.raySphereIntersection = raySphere;
+                result.intersectionExists = true;
+                result.objectIndex = i;
+                result.typeOfIntersectedObject = 1;
+                result.t = raySphere.t;
             }
         }
 
@@ -117,30 +113,43 @@ public:
         //une fois qu'on a le pt intersection, on va ensuite reappeler raytrace pour lancer un rayon avec la direction le rayon réfléchi et l'origine notre point d'intersection jusqu'à un nb (on peut dire 5)
 
         Vec3 color;
+
+        RaySceneIntersection raySceneIntersection = computeIntersection(ray);
+
         return color;
     }
+
+    Vec3 getColor(RaySceneIntersection intersect){
+        switch (intersect.typeOfIntersectedObject)
+        {
+        case 0:
+            return meshes[intersect.objectIndex].material.diffuse_material;
+            break;
+        case 1:
+            return spheres[intersect.objectIndex].material.diffuse_material;
+            break;        
+        case 2:
+            return squares[intersect.objectIndex].material.diffuse_material;
+            break;    
+        default:
+            break;
+        }
+    }
+
 
 
     Vec3 rayTrace( Ray const & rayStart ) {
         //TODO appeler la fonction recursive
-
         //pour i, j de l'image du rendu
         //colorIJ = rayTraceR(r(i, j))
 
-        Vec3 color;
-        RaySceneIntersection intersectScene = computeIntersection(rayStart);
+        RaySceneIntersection intersect = computeIntersection(rayStart);
 
-        //std::cout << "t2 : " << intersectScene.intersectionExists << std::endl;
+        if (!intersect.intersectionExists) {
+            return Vec3(0,0,0);
+        } 
 
-        if (intersectScene.typeOfIntersectedObject == 1) {
-            //std::cout << intersectScene.objectIndex << std::endl;
-            color = spheres[intersectScene.objectIndex].material.diffuse_material;
-            //std::cout << spheres[intersectScene.objectIndex].material.diffuse_material << std::endl;
-        }
-
-        //std::cout << color << std::endl;
-
-        return color;
+        return getColor(intersect);
     }
 
     void setup_single_sphere() {
@@ -159,14 +168,27 @@ public:
             light.material = Vec3(1,1,1);
             light.isInCamSpace = false;
         }
+        //Sphère rouge
         {
             spheres.resize( spheres.size() + 1 );
             Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(0. , 0. , 0.);
-            s.m_radius = 1.f;
+            s.m_center = Vec3(2. , 0. , -2.);
+            s.m_radius = 2.f;
             s.build_arrays();
             s.material.type = Material_Mirror;
-            s.material.diffuse_material = Vec3( 1.,1.,1 );
+            s.material.diffuse_material = Vec3( 1.,0.,0. );
+            s.material.specular_material = Vec3( 0.2,0.2,0.2 );
+            s.material.shininess = 20;
+        }
+        //Sphère verte
+        {
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(-2. , 0. , -1.);
+            s.m_radius = 3.f;
+            s.build_arrays();
+            s.material.type = Material_Mirror;
+            s.material.diffuse_material = Vec3( 0.,1.,0. );
             s.material.specular_material = Vec3( 0.2,0.2,0.2 );
             s.material.shininess = 20;
         }

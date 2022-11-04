@@ -83,48 +83,52 @@ public:
 
 
     RaySphereIntersection intersect(const Ray &ray) const {
-        RaySphereIntersection intersection;
         //TODO calcul l'intersection rayon sphere
-        int distance = sqrt(pow((ray.direction()[0] - ray.origin()[0]), 2) + pow((ray.direction()[1] - ray.origin()[1]), 2) + pow((ray.direction()[2] - ray.origin()[2]), 2));
-        Vec3 P;
-        float a, b, k, t1, t2;
-        for (int i = 0; i < distance; i++) {
-            P = ray.origin() + i*ray.direction();
-            if (Vec3::dot((P-m_center), (P-m_center)) == pow(m_radius, 2)) {
-                a = Vec3::dot(ray.direction(), ray.direction());
-                b = Vec3::dot(2*ray.direction(), ray.origin()-m_center);
-                k = Vec3::dot(ray.origin()-m_center, ray.origin()-m_center)-pow(m_radius, 2);
+        RaySphereIntersection intersection;
 
-                t1 = (-b+sqrt(pow(b, 2)-4*a*k))/2*a;
-                t2 = (-b-sqrt(pow(b, 2)-4*a*k))/2*a;
+        float t, t1, t2;
 
-                if (t1 > 0 && t2 > 0) {
-                    if (t1 > t2) {
-                        intersection.t = t2;
-                    }
-                    else {
-                        intersection.t = t1;
-                    }
-                }
-                else if (t1 > 0 && t2 < 0) {
-                    intersection.t = t1;
-                }
-                else if (t1 < 0 && t2 > 0) {
-                    intersection.t = t2;
-                }
+        float a = Vec3::dot(ray.direction(), ray.direction());
+        float b = Vec3::dot((2*ray.direction()), (ray.origin() - m_center));
+        float c = Vec3::dot((ray.origin()-m_center), (ray.origin()-m_center)) - pow(m_radius, 2);
 
+        float discriminant = pow(b, 2)-4*a*c;
+
+        if (discriminant > 0) {
+            t1 = (-b + sqrt(discriminant))/(2*a);
+            t2 = (-b - sqrt(discriminant))/(2*a);
+
+            if (t1 > 0 && t2 > 0) {
                 intersection.intersectionExists = true;
-                intersection.intersection = Vec3(ray.origin()[0] + i*ray.direction()[0], ray.origin()[1] + i*ray.direction()[1], ray.origin()[2] + i*ray.direction()[2]);
-                //std::cout << intersection << std::endl;
-                /*Vec3 SphericalCoordinates = SphericalCoordinatesToEuclidean(intersection.intersection);
-                intersection.theta = SphericalCoordinates[0];
-                intersection.phi = SphericalCoordinates[1];
-                intersection.normal = intersection.intersection - m_center;*/
-                std::cout << intersection.intersection << std::endl;
-                return intersection;
+                intersection.t = std::min(t1, t2);
+                intersection.intersection = Vec3(ray.origin()[0] + intersection.t*ray.direction()[0], ray.origin()[1] + intersection.t*ray.direction()[1], ray.origin()[2] + intersection.t*ray.direction()[2]);
+                intersection.normal = (intersection.intersection-m_center);
+                intersection.normal.normalize();
+            }
+            else if (t1 > 0 && t2 < 0) {
+                intersection.intersectionExists = true;
+                intersection.t = t1;
+                intersection.intersection = Vec3(ray.origin()[0] + intersection.t*ray.direction()[0], ray.origin()[1] + intersection.t*ray.direction()[1], ray.origin()[2] + intersection.t*ray.direction()[2]);
+                intersection.normal = (intersection.intersection-m_center);
+                intersection.normal.normalize();
+            }
+            else if (t1 < 0 && t2 > 0) {
+                intersection.intersectionExists = true;
+                intersection.t = t2;
+                intersection.intersection = Vec3(ray.origin()[0] + intersection.t*ray.direction()[0], ray.origin()[1] + intersection.t*ray.direction()[1], ray.origin()[2] + intersection.t*ray.direction()[2]);
+                intersection.normal = (intersection.intersection-m_center);
+                intersection.normal.normalize();
+            }
+            else {
+                intersection.intersectionExists = false;
+                intersection.t=FLT_MAX;
             }
         }
-        intersection.intersectionExists = false;
+        else {
+            intersection.intersectionExists = false;
+            intersection.t=FLT_MAX;
+        }
+
         return intersection;
     }
 };
