@@ -94,39 +94,37 @@ public:
 
         float discriminant = pow(b, 2)-4*a*c;
 
-        if (discriminant > 0) {
+        if (discriminant > 0 && 2*a != 0 && 4*a*c >= 0) {
             t1 = (-b + sqrt(discriminant))/(2*a);
             t2 = (-b - sqrt(discriminant))/(2*a);
 
             if (t1 > 0 && t2 > 0) {
                 intersection.intersectionExists = true;
                 intersection.t = std::min(t1, t2);
-                intersection.intersection = Vec3(ray.origin()[0] + intersection.t*ray.direction()[0], ray.origin()[1] + intersection.t*ray.direction()[1], ray.origin()[2] + intersection.t*ray.direction()[2]);
-                intersection.normal = (intersection.intersection-m_center);
+                intersection.intersection = ray.origin() + intersection.t*ray.direction();
+                intersection.normal = intersection.intersection-m_center;
                 intersection.normal.normalize();
             }
             else if (t1 > 0 && t2 < 0) {
                 intersection.intersectionExists = true;
                 intersection.t = t1;
-                intersection.intersection = Vec3(ray.origin()[0] + intersection.t*ray.direction()[0], ray.origin()[1] + intersection.t*ray.direction()[1], ray.origin()[2] + intersection.t*ray.direction()[2]);
-                intersection.normal = (intersection.intersection-m_center);
+                intersection.intersection = ray.origin() + intersection.t*ray.direction();
+                intersection.normal = intersection.intersection-m_center;
                 intersection.normal.normalize();
             }
             else if (t1 < 0 && t2 > 0) {
                 intersection.intersectionExists = true;
                 intersection.t = t2;
-                intersection.intersection = Vec3(ray.origin()[0] + intersection.t*ray.direction()[0], ray.origin()[1] + intersection.t*ray.direction()[1], ray.origin()[2] + intersection.t*ray.direction()[2]);
-                intersection.normal = (intersection.intersection-m_center);
+                intersection.intersection = ray.origin() + intersection.t*ray.direction();
+                intersection.normal = intersection.intersection-m_center;
                 intersection.normal.normalize();
             }
             else {
                 intersection.intersectionExists = false;
-                intersection.t=FLT_MAX;
             }
         }
         else {
             intersection.intersectionExists = false;
-            intersection.t=FLT_MAX;
         }
 
         return intersection;

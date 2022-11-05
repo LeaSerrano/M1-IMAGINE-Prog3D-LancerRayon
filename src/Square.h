@@ -57,15 +57,61 @@ public:
         triangles[1][1] = 2;
         triangles[1][2] = 3;
 
+    }
 
+    Vec3 bottomLeft() const { 
+        return this->vertices[0].position; 
+    }
+
+    Vec3 bottomRight() const { 
+        return this->vertices[1].position; 
+    }
+
+    Vec3 upRight() const { 
+        return this->vertices[2].position; 
+    }
+
+    Vec3 upLeft() const { 
+        return this->vertices[3].position; 
+    }
+    
+    Vec3 normal() const { 
+        return Vec3::cross((bottomRight() - bottomLeft()) , (upLeft() - bottomLeft())); 
     }
 
     RaySquareIntersection intersect(const Ray &ray) const {
+        //TODO calculer l'intersection rayon quad
         RaySquareIntersection intersection;
 
-        //TODO calculer l'intersection rayon quad
+        Vec3 bottomLeft = this->bottomLeft();
+        Vec3 bottomRight = this->bottomRight();
+        Vec3 upLeft = this->upLeft();
+        Vec3 normal = this->normal();
+
+        float t = Vec3::dot(bottomLeft-ray.origin(), normal)/Vec3::dot(ray.direction(), normal);
+        Vec3 P = ray.origin() + t*ray.direction();
+
+        Vec3 RL = bottomLeft - bottomRight;
+        Vec3 RP = P - bottomRight;
+        float u = (Vec3::dot(RL, RP))/RL.length();
+
+        Vec3 UB = bottomLeft - upLeft;
+        Vec3 UP = P - upLeft;
+        float v = (Vec3::dot(UB, UP))/UB.length();
+
+        if (t >= 0 && u < RL.norm() && u > 0 && v < UB.norm() && v > 0) {
+            intersection.intersectionExists = true;
+            intersection.t = t;
+            intersection.u = u;
+            intersection.v = v;
+            intersection.normal = this->normal();
+        }
+        else {
+            intersection.intersectionExists = false;
+        }
 
         return intersection;
+
     }
 };
 #endif // SQUARE_H

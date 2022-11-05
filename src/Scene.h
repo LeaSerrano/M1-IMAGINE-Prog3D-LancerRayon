@@ -80,7 +80,7 @@ public:
 
 
 
-    RaySceneIntersection computeIntersection(Ray const & ray) {
+    RaySceneIntersection computeIntersection(Ray const & ray, float znear) {
         //TODO calculer les intersections avec les objets de la scene et garder la plus proche
 
         //on apelle les intersect des sphere, des square
@@ -92,15 +92,27 @@ public:
 
         RaySceneIntersection result;
         RaySphereIntersection raySphere;
+        RaySquareIntersection raySquare;
 
         for (int i = 0; i < spheres.size(); i++) {
             raySphere = spheres[i].intersect(ray);
-            if(raySphere.t >= 0 && raySphere.t < result.t && raySphere.intersectionExists){
+            if(raySphere.t >= 0 && raySphere.t < result.t && raySphere.intersectionExists && raySphere.t > znear){
                 result.raySphereIntersection = raySphere;
                 result.intersectionExists = true;
                 result.objectIndex = i;
                 result.typeOfIntersectedObject = 1;
                 result.t = raySphere.t;
+            }
+        }
+
+        for (int i = 0; i < squares.size(); i++) {
+            raySquare = squares[i].intersect(ray);
+            if(raySquare.t >= 0 && raySquare.t < result.t && raySquare.intersectionExists && raySquare.t > znear){
+                result.raySquareIntersection = raySquare;
+                result.intersectionExists = true;
+                result.objectIndex = i;
+                result.typeOfIntersectedObject = 2;
+                result.t = raySquare.t;
             }
         }
 
@@ -114,12 +126,10 @@ public:
 
         Vec3 color;
 
-        RaySceneIntersection raySceneIntersection = computeIntersection(ray);
-
         return color;
     }
 
-    Vec3 getColor(RaySceneIntersection intersect){
+    Vec3 getColor(RaySceneIntersection intersect) {
         switch (intersect.typeOfIntersectedObject)
         {
         case 0:
@@ -138,12 +148,12 @@ public:
 
 
 
-    Vec3 rayTrace( Ray const & rayStart ) {
+    Vec3 rayTrace( Ray const & rayStart , float znear) {
         //TODO appeler la fonction recursive
         //pour i, j de l'image du rendu
         //colorIJ = rayTraceR(r(i, j))
 
-        RaySceneIntersection intersect = computeIntersection(rayStart);
+        RaySceneIntersection intersect = computeIntersection(rayStart, znear);
 
         if (!intersect.intersectionExists) {
             return Vec3(0,0,0);
@@ -216,7 +226,7 @@ public:
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 0.8,0.8,0.8 );
+            s.material.diffuse_material = Vec3( 1.0 ,0.,0. );
             s.material.specular_material = Vec3( 0.8,0.8,0.8 );
             s.material.shininess = 20;
         }
@@ -246,7 +256,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.translate(Vec3(0., 0., -2.));
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.,1.,1. );
+            s.material.diffuse_material = Vec3( 1.,0.,1. );
             s.material.specular_material = Vec3( 1.,1.,1. );
             s.material.shininess = 16;
         }
@@ -273,7 +283,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_y(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 0.0,1.0,0.0 );
+            s.material.diffuse_material = Vec3( 0.5,0.5,0.5 );
             s.material.specular_material = Vec3( 0.0,1.0,0.0 );
             s.material.shininess = 16;
         }
@@ -286,7 +296,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_x(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
+            s.material.diffuse_material = Vec3( 1.0,1.0,0. );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
@@ -299,7 +309,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_x(90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
+            s.material.diffuse_material = Vec3( 1.0,0.3,0.3 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
@@ -341,7 +351,7 @@ public:
             s.m_radius = 0.75f;
             s.build_arrays();
             s.material.type = Material_Glass;
-            s.material.diffuse_material = Vec3( 1.,1.,1. );
+            s.material.diffuse_material = Vec3( 0.,0.,1. );
             s.material.specular_material = Vec3(  1.,1.,1. );
             s.material.shininess = 16;
             s.material.transparency = 0.;
