@@ -45,6 +45,34 @@ struct RaySceneIntersection{
     RaySphereIntersection raySphereIntersection;
     RaySquareIntersection raySquareIntersection;
     RaySceneIntersection() : intersectionExists(false) , t(FLT_MAX) {}
+
+    Vec3 normal() {
+        if (typeOfIntersectedObject == 0) {
+            return rayMeshIntersection.normal;
+        }
+        else if (typeOfIntersectedObject == 1) {
+            return raySphereIntersection.normal;
+        }
+        else if (typeOfIntersectedObject == 2) {
+            return raySquareIntersection.normal;
+        }
+
+        return Vec3(0, 0, 0);
+    }
+
+    Vec3 intersection() {
+        if (typeOfIntersectedObject == 0) {
+            return rayMeshIntersection.intersection;
+        }
+        else if (typeOfIntersectedObject == 1) {
+            return raySphereIntersection.intersection;
+        }
+        else if (typeOfIntersectedObject == 2) {
+            return raySquareIntersection.intersection;
+        }
+
+        return Vec3(0, 0, 0);
+    }
 };
 
 
@@ -75,9 +103,22 @@ public:
             Square const & square = squares[It];
             square.draw();
         }
+
     }
 
 
+     Vec3 getColor(RaySceneIntersection intersect) {
+        if (intersect.typeOfIntersectedObject == 0) {
+            return meshes[intersect.objectIndex].material.diffuse_material;
+        }
+        else if (intersect.typeOfIntersectedObject == 1) {
+            return spheres[intersect.objectIndex].material.diffuse_material;
+        }
+        else if (intersect.typeOfIntersectedObject == 2) {      
+            return squares[intersect.objectIndex].material.diffuse_material;
+        }
+        return Vec3(0, 0, 0);
+    }
 
 
     RaySceneIntersection computeIntersection(Ray const & ray, float znear) {
@@ -120,32 +161,30 @@ public:
     }
 
 
-    Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces ) {
+    Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces, float znear) {
         //TODO RaySceneIntersection raySceneIntersection = computeIntersection(ray);
         //une fois qu'on a le pt intersection, on va ensuite reappeler raytrace pour lancer un rayon avec la direction le rayon réfléchi et l'origine notre point d'intersection jusqu'à un nb (on peut dire 5)
-
         Vec3 color;
+
+        RaySceneIntersection raySceneIntersection = computeIntersection(ray, znear);
+
+        if (!raySceneIntersection.intersectionExists) {
+            return Vec3(0, 0, 0);
+        }
+
+        if (NRemainingBounces == 0) {
+            return getColor(raySceneIntersection);
+        }
+
+        /*Vec3 reflection = 2*(Vec3::dot(raySceneIntersection.normal(), ray.direction()))*raySceneIntersection.normal() - ray.direction();
+        Ray rayon = Ray(raySceneIntersection.intersection(), reflection);*/
+        Ray rayon = Ray(ray.origin(), ray.direction());
+
+        NRemainingBounces--;
+        color = rayTraceRecursive(rayon, NRemainingBounces, znear);
 
         return color;
     }
-
-    Vec3 getColor(RaySceneIntersection intersect) {
-        switch (intersect.typeOfIntersectedObject)
-        {
-        case 0:
-            return meshes[intersect.objectIndex].material.diffuse_material;
-            break;
-        case 1:
-            return spheres[intersect.objectIndex].material.diffuse_material;
-            break;        
-        case 2:
-            return squares[intersect.objectIndex].material.diffuse_material;
-            break;    
-        default:
-            break;
-        }
-    }
-
 
 
     Vec3 rayTrace( Ray const & rayStart , float znear) {
@@ -153,13 +192,13 @@ public:
         //pour i, j de l'image du rendu
         //colorIJ = rayTraceR(r(i, j))
 
-        RaySceneIntersection intersect = computeIntersection(rayStart, znear);
+        /*RaySceneIntersection intersect = computeIntersection(rayStart, znear);
 
         if (!intersect.intersectionExists) {
             return Vec3(0,0,0);
-        } 
+        }*/
 
-        return getColor(intersect);
+        return rayTraceRecursive(rayStart, 5, znear); //getColor(intersect);
     }
 
     void setup_single_sphere() {
@@ -182,8 +221,8 @@ public:
         {
             spheres.resize( spheres.size() + 1 );
             Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(2. , 0. , -2.);
-            s.m_radius = 2.f;
+            s.m_center = Vec3(2. , 0. , -4);
+            s.m_radius = 2.5f;
             s.build_arrays();
             s.material.type = Material_Mirror;
             s.material.diffuse_material = Vec3( 1.,0.,0. );
@@ -194,8 +233,8 @@ public:
         {
             spheres.resize( spheres.size() + 1 );
             Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(-2. , 0. , -1.);
-            s.m_radius = 3.f;
+            s.m_center = Vec3(-2. , 0. , -2.5);
+            s.m_radius = 3.5f;
             s.build_arrays();
             s.material.type = Material_Mirror;
             s.material.diffuse_material = Vec3( 0.,1.,0. );
