@@ -144,3 +144,7 @@ void Camera::getPos (float & X, float & Y, float & Z) {
 
 }
 
+Vec3 Camera::getPosition() {
+  return Vec3(this->x, y, z);
+}
+

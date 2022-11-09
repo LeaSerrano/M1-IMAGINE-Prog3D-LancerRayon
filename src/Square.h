@@ -104,7 +104,9 @@ public:
             intersection.t = t;
             intersection.u = u;
             intersection.v = v;
-            intersection.normal = this->normal();
+            intersection.intersection = Vec3(intersection.u, intersection.v, 0);
+            intersection.normal = normal;
+            intersection.normal.normalize();
         }
         else {
             intersection.intersectionExists = false;

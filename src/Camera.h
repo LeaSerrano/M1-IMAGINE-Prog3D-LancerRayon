@@ -40,6 +40,8 @@ public:
   
   void getPos (float & x, float & y, float & z);
   inline void getPos (Vec3 & p) { getPos (p[0], p[1], p[2]); }
+
+  Vec3 getPosition();
   
 private:
   float fovAngle;

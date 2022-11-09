@@ -6,7 +6,7 @@
 #include "Mesh.h"
 #include "Sphere.h"
 #include "Square.h"
-
+#include <algorithm>
 
 #include <GL/glut.h>
 
@@ -15,10 +15,6 @@ enum LightType {
     LightType_Spherical,
     LightType_Quad
 };
-
-/*const unsigned int mesh_type = 0;
-const unsigned int
-const unsigned int*/
 
 struct Light {
     Vec3 material;
@@ -107,18 +103,104 @@ public:
     }
 
 
-     Vec3 getColor(RaySceneIntersection intersect) {
+    Material getMaterial (RaySceneIntersection intersect) {
         if (intersect.typeOfIntersectedObject == 0) {
-            return meshes[intersect.objectIndex].material.diffuse_material;
+            return meshes[intersect.objectIndex].material;
         }
         else if (intersect.typeOfIntersectedObject == 1) {
-            return spheres[intersect.objectIndex].material.diffuse_material;
+            return spheres[intersect.objectIndex].material;
         }
         else if (intersect.typeOfIntersectedObject == 2) {      
-            return squares[intersect.objectIndex].material.diffuse_material;
+            return squares[intersect.objectIndex].material;
         }
-        return Vec3(0, 0, 0);
     }
+
+
+    Vec3 displayPhongIllumination(RaySceneIntersection intersect, Ray ray, float znear) {
+        Material material;
+        Vec3 color;
+
+        Vec3 ptIntersect = intersect.intersection();
+        Vec3 normal = intersect.normal();
+        Vec3 view = -1 * ray.direction();
+        view.normalize(); 
+        Vec3 lightVec;
+
+        Vec3 ambientVec, diffuseVec, specularVec;  
+        
+        material = getMaterial(intersect);
+
+        for (int n = 0; n < lights.size(); n++) {
+            ambientVec = Vec3::compProduct(lights[n].material, material.ambient_material);
+
+            lightVec = lights[n].pos - ptIntersect;
+            lightVec.normalize();
+
+            float diffuse = Vec3::dot(normal, lightVec);
+            diffuseVec = Vec3::compProduct(lights[n].material, material.diffuse_material) * diffuse;
+        
+
+            Vec3 reflection = 2*(Vec3::dot(normal, lightVec)) * normal - lightVec;
+            reflection.normalize();
+
+            float specular = pow(std::max(0.f,Vec3::dot(reflection, view)), material.shininess);
+            specularVec = Vec3::compProduct(lights[n].material, material.specular_material) * specular;
+
+            color = ambientVec + diffuseVec + specularVec;
+
+        }
+
+        return color;
+    }
+
+    //Test
+    /*Vec3 displayPhongIlluminationWithShadow(RaySceneIntersection intersect, Ray ray, float znear) {
+        Material material;
+        Vec3 color;
+        bool isShadow;
+
+        Vec3 ptIntersect = intersect.intersection();
+        Vec3 normal = intersect.normal();
+        Vec3 view = -1 * ray.direction();
+        view.normalize(); 
+
+        Vec3 ambientVec, diffuseVec, specularVec;  
+        
+        material = getMaterial(intersect);
+
+        if (intersect.typeOfIntersectedObject == 1) {
+        for (int n = 0; n < lights.size(); n++) {
+            ambientVec = Vec3::compProduct(lights[n].material, material.ambient_material);
+
+
+            Vec3 lightVec = lights[0].pos - intersect.intersection();
+            lightVec.normalize();
+        
+            Ray rayon = Ray(intersect.intersection(), lightVec);
+            RaySceneIntersection rayIntersection = computeIntersection(rayon, znear);
+
+            if (rayIntersection.intersectionExists) {
+                return Vec3(0., 0., 0.);
+            }
+            else {
+                float diffuse = Vec3::dot(normal, lightVec);
+                diffuseVec = Vec3::compProduct(lights[n].material, material.diffuse_material) * diffuse;
+
+
+                Vec3 reflection = 2*(Vec3::dot(normal, lightVec)) * normal - lightVec;
+                reflection.normalize();
+
+                float specular = pow(std::max(0.f,Vec3::dot(reflection, view)), material.shininess);
+                specularVec = Vec3::compProduct(lights[n].material, material.specular_material) * specular;
+
+                color = ambientVec + diffuseVec + specularVec;
+            }
+
+        }
+        }
+
+        return color;
+    }*/
 
 
     RaySceneIntersection computeIntersection(Ray const & ray, float znear) {
@@ -165,7 +247,6 @@ public:
         //TODO RaySceneIntersection raySceneIntersection = computeIntersection(ray);
         //une fois qu'on a le pt intersection, on va ensuite reappeler raytrace pour lancer un rayon avec la direction le rayon réfléchi et l'origine notre point d'intersection jusqu'à un nb (on peut dire 5)
         Vec3 color;
-
         RaySceneIntersection raySceneIntersection = computeIntersection(ray, znear);
 
         if (!raySceneIntersection.intersectionExists) {
@@ -173,16 +254,17 @@ public:
         }
 
         if (NRemainingBounces == 0) {
-            return getColor(raySceneIntersection);
+            return color;
         }
 
-        /*Vec3 reflection = 2*(Vec3::dot(raySceneIntersection.normal(), ray.direction()))*raySceneIntersection.normal() - ray.direction();
-        Ray rayon = Ray(raySceneIntersection.intersection(), reflection);*/
-        Ray rayon = Ray(ray.origin(), ray.direction());
+        color = displayPhongIllumination(raySceneIntersection, ray, znear);
+
+        /*Vec3 reflection = ray.direction() - 2*(Vec3::dot(raySceneIntersection.normal(), ray.direction())) * raySceneIntersection.normal();
+        Ray reflectionRay = Ray(raySceneIntersection.intersection(), reflection);*/
 
         NRemainingBounces--;
-        color = rayTraceRecursive(rayon, NRemainingBounces, znear);
-
+        rayTraceRecursive(ray, NRemainingBounces, znear);
+        
         return color;
     }
 
@@ -191,14 +273,20 @@ public:
         //TODO appeler la fonction recursive
         //pour i, j de l'image du rendu
         //colorIJ = rayTraceR(r(i, j))
+        Vec3 color;
 
-        /*RaySceneIntersection intersect = computeIntersection(rayStart, znear);
+       /* RaySceneIntersection intersect = computeIntersection(rayStart, znear);
+        if (intersect.intersectionExists) {
+            color = displayPhongIllumination(intersect, rayStart, znear);
+        }
 
-        if (!intersect.intersectionExists) {
-            return Vec3(0,0,0);
+        else if (!intersect.intersectionExists) {
+            return Vec3(0, 0, 0);
         }*/
 
-        return rayTraceRecursive(rayStart, 5, znear); //getColor(intersect);
+        color = rayTraceRecursive(rayStart, 5, znear);
+
+        return color;
     }
 
     void setup_single_sphere() {
@@ -280,13 +368,27 @@ public:
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
-            light.pos = Vec3( 0.0, 1.5, 0.0 );
+            light.pos = Vec3(0., 1.95, 0.);
             light.radius = 2.5f;
             light.powerCorrection = 2.f;
             light.type = LightType_Spherical;
             light.material = Vec3(1,1,1);
             light.isInCamSpace = false;
+
         }
+
+        
+        /*{
+            lights.resize( lights.size() + 1 );
+            Light & light = lights[lights.size() - 1];
+            light.pos = Vec3(2., 2., 6.);
+            light.radius = 2.5f;
+            light.powerCorrection = 2.f;
+            light.type = LightType_Spherical;
+            light.material = Vec3(1,1,1);
+            light.isInCamSpace = false;
+
+        }*/
 
         { //Back Wall
             squares.resize( squares.size() + 1 );
@@ -295,7 +397,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.translate(Vec3(0., 0., -2.));
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.,0.,1. );
+            s.material.diffuse_material = Vec3( 0.,1.,0. );
             s.material.specular_material = Vec3( 1.,1.,1. );
             s.material.shininess = 16;
         }
@@ -322,7 +424,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_y(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 0.5,0.5,0.5 );
+            s.material.diffuse_material = Vec3( 1.,0.,1. );
             s.material.specular_material = Vec3( 0.0,1.0,0.0 );
             s.material.shininess = 16;
         }
@@ -335,7 +437,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_x(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.0,1.0,0. );
+            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
@@ -348,7 +450,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_x(90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.0,0.3,0.3 );
+            s.material.diffuse_material = Vec3( 0.,0.,1. );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
@@ -396,6 +498,20 @@ public:
             s.material.transparency = 0.;
             s.material.index_medium = 0.;
         }
+
+        /*{ 
+            spheres.resize( spheres.size() + 1 );
+            Sphere & s = spheres[spheres.size() - 1];
+            s.m_center = Vec3(0., 2.2, 0.);
+            s.m_radius = 0.2f;
+            s.build_arrays();
+            s.material.type = Material_Glass;
+            s.material.diffuse_material = Vec3( 0., 0., 0);
+            s.material.specular_material = Vec3(  1.,1.,1. );
+            s.material.shininess = 16;
+            s.material.transparency = 0.;
+            s.material.index_medium = 0.;
+        }*/
 
     }
 
