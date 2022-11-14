@@ -116,6 +116,20 @@ public:
     }
 
 
+    Vec3 getColor(RaySceneIntersection intersect) {
+        if (intersect.typeOfIntersectedObject == 0) {
+            return meshes[intersect.objectIndex].material.diffuse_material;
+        }
+        else if (intersect.typeOfIntersectedObject == 1) {
+            return spheres[intersect.objectIndex].material.diffuse_material;
+        }
+        else if (intersect.typeOfIntersectedObject == 2) {      
+            return squares[intersect.objectIndex].material.diffuse_material;
+        }
+        return Vec3(0, 0, 0);
+    }
+
+
     Vec3 displayPhongIllumination(RaySceneIntersection intersect, Ray ray, float znear) {
         Material material;
         Vec3 color;
@@ -131,22 +145,22 @@ public:
         material = getMaterial(intersect);
 
         for (int n = 0; n < lights.size(); n++) {
-            ambientVec = Vec3::compProduct(lights[n].material, material.ambient_material);
+            ambientVec = material.ambient_material;
 
             lightVec = lights[n].pos - ptIntersect;
             lightVec.normalize();
 
             float diffuse = Vec3::dot(normal, lightVec);
-            diffuseVec = Vec3::compProduct(lights[n].material, material.diffuse_material) * diffuse;
+            diffuseVec = material.diffuse_material * diffuse;
         
 
             Vec3 reflection = 2*(Vec3::dot(normal, lightVec)) * normal - lightVec;
             reflection.normalize();
 
             float specular = pow(std::max(0.f,Vec3::dot(reflection, view)), material.shininess);
-            specularVec = Vec3::compProduct(lights[n].material, material.specular_material) * specular;
+            specularVec = material.specular_material * specular;
 
-            color = ambientVec + diffuseVec + specularVec;
+            color += Vec3::compProduct(lights[n].material, ambientVec + diffuseVec + specularVec);
 
         }
 
@@ -269,24 +283,25 @@ public:
     }
 
 
+
     Vec3 rayTrace( Ray const & rayStart , float znear) {
         //TODO appeler la fonction recursive
         //pour i, j de l'image du rendu
         //colorIJ = rayTraceR(r(i, j))
         Vec3 color;
 
-       /* RaySceneIntersection intersect = computeIntersection(rayStart, znear);
-        if (intersect.intersectionExists) {
+       RaySceneIntersection intersect = computeIntersection(rayStart, znear);
+       /* if (intersect.intersectionExists) {
             color = displayPhongIllumination(intersect, rayStart, znear);
         }
 
         else if (!intersect.intersectionExists) {
-            return Vec3(0, 0, 0);
+            return getColor(intersect);
         }*/
 
-        color = rayTraceRecursive(rayStart, 5, znear);
+        //color = rayTraceRecursive(rayStart, 5, znear);
 
-        return color;
+        return displayPhongIllumination(intersect, rayStart, znear);
     }
 
     void setup_single_sphere() {
@@ -368,7 +383,7 @@ public:
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
-            light.pos = Vec3(0., 1.95, 0.);
+            light.pos = Vec3(0., 1.5, 0.);
             light.radius = 2.5f;
             light.powerCorrection = 2.f;
             light.type = LightType_Spherical;
@@ -376,19 +391,6 @@ public:
             light.isInCamSpace = false;
 
         }
-
-        
-        /*{
-            lights.resize( lights.size() + 1 );
-            Light & light = lights[lights.size() - 1];
-            light.pos = Vec3(2., 2., 6.);
-            light.radius = 2.5f;
-            light.powerCorrection = 2.f;
-            light.type = LightType_Spherical;
-            light.material = Vec3(1,1,1);
-            light.isInCamSpace = false;
-
-        }*/
 
         { //Back Wall
             squares.resize( squares.size() + 1 );
