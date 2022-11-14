@@ -299,9 +299,9 @@ public:
             return getColor(intersect);
         }*/
 
-        //color = rayTraceRecursive(rayStart, 5, znear);
+        color = rayTraceRecursive(rayStart, 5, znear);
 
-        return displayPhongIllumination(intersect, rayStart, znear);
+        return color;
     }
 
     void setup_single_sphere() {
