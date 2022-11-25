@@ -52,8 +52,6 @@ struct RaySceneIntersection{
         else if (typeOfIntersectedObject == 2) {
             return raySquareIntersection.normal;
         }
-
-        return Vec3(0, 0, 0);
     }
 
     Vec3 intersection() {
@@ -66,8 +64,6 @@ struct RaySceneIntersection{
         else if (typeOfIntersectedObject == 2) {
             return raySquareIntersection.intersection;
         }
-
-        return Vec3(0, 0, 0);
     }
 };
 
@@ -126,9 +122,47 @@ public:
         else if (intersect.typeOfIntersectedObject == 2) {      
             return squares[intersect.objectIndex].material.diffuse_material;
         }
-        return Vec3(0, 0, 0);
     }
 
+
+    RaySceneIntersection computeIntersection(Ray const & ray, float znear) {
+        //TODO calculer les intersections avec les objets de la scene et garder la plus proche
+
+        //on apelle les intersect des sphere, des square
+
+        //position = origin + t*dIJ -> pour avoir la sphere la plus proche
+        //on veut tous les t >= 0 et on veut savoir lesquels sont avant lesquels
+        //on va comparer les t de toutes les intersections pour savoir quel objet est le plus proche
+        //result.intersectionExists = true;
+
+        RaySceneIntersection result;
+        RaySphereIntersection raySphere;
+        RaySquareIntersection raySquare;
+
+        for (int i = 0; i < spheres.size(); i++) {
+            raySphere = spheres[i].intersect(ray);
+            if(raySphere.t >= 0 && raySphere.t < result.t && raySphere.intersectionExists && raySphere.t > znear){
+                result.raySphereIntersection = raySphere;
+                result.intersectionExists = true;
+                result.objectIndex = i;
+                result.typeOfIntersectedObject = 1;
+                result.t = raySphere.t;
+            }
+        }
+
+        for (int i = 0; i < squares.size(); i++) {
+            raySquare = squares[i].intersect(ray);
+            if(raySquare.t >= 0 && raySquare.t < result.t && raySquare.intersectionExists && raySquare.t > znear){
+                result.raySquareIntersection = raySquare;
+                result.intersectionExists = true;
+                result.objectIndex = i;
+                result.typeOfIntersectedObject = 2;
+                result.t = raySquare.t;
+            }
+        }
+
+        return result;
+    }
 
     Vec3 displayPhongIllumination(RaySceneIntersection intersect, Ray ray, float znear) {
         Material material;
@@ -167,8 +201,8 @@ public:
         return color;
     }
 
-    //Test
-    /*Vec3 displayPhongIlluminationWithShadow(RaySceneIntersection intersect, Ray ray, float znear) {
+    
+    Vec3 displayPhongIlluminationWithShadow(RaySceneIntersection intersect, Ray ray, float znear) {
         Material material;
         Vec3 color;
         bool isShadow;
@@ -214,46 +248,6 @@ public:
         }
 
         return color;
-    }*/
-
-
-    RaySceneIntersection computeIntersection(Ray const & ray, float znear) {
-        //TODO calculer les intersections avec les objets de la scene et garder la plus proche
-
-        //on apelle les intersect des sphere, des square
-
-        //position = origin + t*dIJ -> pour avoir la sphere la plus proche
-        //on veut tous les t >= 0 et on veut savoir lesquels sont avant lesquels
-        //on va comparer les t de toutes les intersections pour savoir quel objet est le plus proche
-        //result.intersectionExists = true;
-
-        RaySceneIntersection result;
-        RaySphereIntersection raySphere;
-        RaySquareIntersection raySquare;
-
-        for (int i = 0; i < spheres.size(); i++) {
-            raySphere = spheres[i].intersect(ray);
-            if(raySphere.t >= 0 && raySphere.t < result.t && raySphere.intersectionExists && raySphere.t > znear){
-                result.raySphereIntersection = raySphere;
-                result.intersectionExists = true;
-                result.objectIndex = i;
-                result.typeOfIntersectedObject = 1;
-                result.t = raySphere.t;
-            }
-        }
-
-        for (int i = 0; i < squares.size(); i++) {
-            raySquare = squares[i].intersect(ray);
-            if(raySquare.t >= 0 && raySquare.t < result.t && raySquare.intersectionExists && raySquare.t > znear){
-                result.raySquareIntersection = raySquare;
-                result.intersectionExists = true;
-                result.objectIndex = i;
-                result.typeOfIntersectedObject = 2;
-                result.t = raySquare.t;
-            }
-        }
-
-        return result;
     }
 
 
@@ -272,6 +266,7 @@ public:
         }
 
         color = displayPhongIllumination(raySceneIntersection, ray, znear);
+        //color = displayPhongIlluminationWithShadow(raySceneIntersection, ray, znear);
 
         /*Vec3 reflection = ray.direction() - 2*(Vec3::dot(raySceneIntersection.normal(), ray.direction())) * raySceneIntersection.normal();
         Ray reflectionRay = Ray(raySceneIntersection.intersection(), reflection);*/
@@ -290,8 +285,8 @@ public:
         //colorIJ = rayTraceR(r(i, j))
         Vec3 color;
 
-       RaySceneIntersection intersect = computeIntersection(rayStart, znear);
-       /* if (intersect.intersectionExists) {
+       /*RaySceneIntersection intersect = computeIntersection(rayStart, znear);
+       if (intersect.intersectionExists) {
             color = displayPhongIllumination(intersect, rayStart, znear);
         }
 
@@ -304,7 +299,7 @@ public:
         return color;
     }
 
-    void setup_single_sphere() {
+    /*void setup_single_sphere() {
         meshes.clear();
         spheres.clear();
         squares.clear();
@@ -344,9 +339,9 @@ public:
             s.material.specular_material = Vec3( 0.2,0.2,0.2 );
             s.material.shininess = 20;
         }
-    }
+    }*/
 
-    void setup_single_square() {
+    /*void setup_single_square() {
         meshes.clear();
         spheres.clear();
         squares.clear();
@@ -372,7 +367,7 @@ public:
             s.material.specular_material = Vec3( 0.8,0.8,0.8 );
             s.material.shininess = 20;
         }
-    }
+    }*/
 
     void setup_cornell_box(){
         meshes.clear();
@@ -383,7 +378,7 @@ public:
         {
             lights.resize( lights.size() + 1 );
             Light & light = lights[lights.size() - 1];
-            light.pos = Vec3(0., 1.5, 0.);
+            light.pos = Vec3( 0.0, 1.5, 0.0 );
             light.radius = 2.5f;
             light.powerCorrection = 2.f;
             light.type = LightType_Spherical;

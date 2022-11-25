@@ -11,6 +11,7 @@ struct RaySquareIntersection{
     float u,v;
     Vec3 intersection;
     Vec3 normal;
+    Vec3 bouncedir;
 };
 
 
@@ -20,6 +21,9 @@ public:
     Vec3 m_bottom_left;//point en bas à gauche
     Vec3 m_right_vector;//vecteur vers la droite
     Vec3 m_up_vector;//vecteur vers le haut
+     Mat3 transformMat; //ajout ludovic
+    bool hasTransform = false;
+
 
     Square() : Mesh() {}
     Square(Vec3 const & bottomLeft , Vec3 const & rightVector , Vec3 const & upVector , float width=1. , float height=1. ,
@@ -104,7 +108,7 @@ public:
             intersection.t = t;
             intersection.u = u;
             intersection.v = v;
-            intersection.intersection = Vec3(intersection.u, intersection.v, 0);
+            intersection.intersection = P;
             intersection.normal = normal;
             intersection.normal.normalize();
         }
@@ -115,5 +119,6 @@ public:
         return intersection;
 
     }
+
 };
 #endif // SQUARE_H
