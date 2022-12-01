@@ -447,7 +447,7 @@ public:
             s.build_arrays();
             s.material.type = Material_Mirror;
             s.material.diffuse_material = Vec3( 0.88,0.52,0.26 );
-            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
+            s.material.specular_material = Vec3( 0.88,0.52,0.26 );
             s.material.shininess = 16;
             s.material.transparency = 1.0;
             s.material.index_medium = 1.4;
@@ -462,7 +462,7 @@ public:
             s.build_arrays();
             s.material.type = Material_Glass;
             s.material.diffuse_material = Vec3( 0.91,0.71,0.46 );
-            s.material.specular_material = Vec3(1.0,1.0,1.0);
+            s.material.specular_material = Vec3(  0.91,0.71,0.46 );
             s.material.shininess = 16;
             s.material.transparency = 0.;
             s.material.index_medium = 0.;
