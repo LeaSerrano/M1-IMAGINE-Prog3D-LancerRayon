@@ -201,64 +201,15 @@ public:
         return color;
     }
 
-    
-    /*Vec3 displayPhongIlluminationWithShadow(RaySceneIntersection intersect, Ray ray, float znear) {
-        Material material;
-        Vec3 color;
-        bool isShadow;
-
-        Vec3 ptIntersect = intersect.intersection();
-        Vec3 normal = intersect.normal();
-        Vec3 view = -1 * ray.direction();
-        view.normalize(); 
-
-        Vec3 ambientVec, diffuseVec, specularVec;  
-        
-        material = getMaterial(intersect);
-
-        if (intersect.typeOfIntersectedObject == 1) {
-        for (int n = 0; n < lights.size(); n++) {
-            ambientVec = Vec3::compProduct(lights[n].material, material.ambient_material);
-
-
-            Vec3 lightVec = lights[n].pos - intersect.intersection();
-            lightVec.normalize();
-        
-            Ray rayon = Ray(intersect.intersection(), -1*lightVec);
-            RaySceneIntersection rayIntersection = computeIntersection(rayon, znear);
-
-            if (rayIntersection.intersectionExists && rayIntersection.typeOfIntersectedObject == 1) {
-                return Vec3(0., 0., 0.);
-            }
-            else {
-                float diffuse = Vec3::dot(normal, lightVec);
-                diffuseVec = Vec3::compProduct(lights[n].material, material.diffuse_material) * diffuse;
-
-
-                Vec3 reflection = 2*(Vec3::dot(normal, lightVec)) * normal - lightVec;
-                reflection.normalize();
-
-                float specular = pow(std::max(0.f,Vec3::dot(reflection, view)), material.shininess);
-                specularVec = Vec3::compProduct(lights[n].material, material.specular_material) * specular;
-
-                color = ambientVec + diffuseVec + specularVec;
-            }
-
-        }
-        }
-
-        return color;
-    }*/
-
      Vec3 displayShadow(RaySceneIntersection raySceneIntersection, Ray ray, float znear) {
         Vec3 color;
         Vec3 intersectPt = raySceneIntersection.getIntersection();
 
         Vec3 L = lights[0].pos - intersectPt;
-        //L.normalize();
+        L.normalize();
 
         Ray rayS = Ray(intersectPt, L);
-        RaySceneIntersection shadow = computeIntersection(rayS, znear);
+        RaySceneIntersection shadow = computeIntersection(rayS, 0.01);
 
         if (shadow.intersectionExists && shadow.t <= L.length()) {
             color = Vec3(0, 0, 0);
@@ -268,7 +219,6 @@ public:
         }
 
         return color;
-    
     }
 
 
@@ -416,7 +366,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.translate(Vec3(0., 0., -2.));
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 0.,1.,0. );
+            s.material.diffuse_material = Vec3( 0.02,0.22,0.43);
             s.material.specular_material = Vec3( 1.,1.,1. );
             s.material.shininess = 16;
         }
@@ -430,7 +380,7 @@ public:
             s.translate(Vec3(0., 0., -2.));
             s.rotate_y(90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.,0.,0. );
+            s.material.diffuse_material = Vec3( 0.11,0.50,0.68 );
             s.material.specular_material = Vec3( 1.,0.,0. );
             s.material.shininess = 16;
         }
@@ -443,7 +393,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_y(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.,0.,1. );
+            s.material.diffuse_material = Vec3( 0.46,0.70,0.76 );
             s.material.specular_material = Vec3( 0.0,1.0,0.0 );
             s.material.shininess = 16;
         }
@@ -456,7 +406,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_x(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
+            s.material.diffuse_material = Vec3( 0.92,0.92,0.89 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
@@ -469,7 +419,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_x(90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 0.,0.,1. );
+            s.material.diffuse_material = Vec3( 1.,1.,1. );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
@@ -496,8 +446,8 @@ public:
             s.m_radius = 0.75f;
             s.build_arrays();
             s.material.type = Material_Mirror;
-            s.material.diffuse_material = Vec3( 1.,0.,0. );
-            s.material.specular_material = Vec3( 1.,0.,0. );
+            s.material.diffuse_material = Vec3( 0.88,0.52,0.26 );
+            s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
             s.material.transparency = 1.0;
             s.material.index_medium = 1.4;
@@ -511,8 +461,8 @@ public:
             s.m_radius = 0.75f;
             s.build_arrays();
             s.material.type = Material_Glass;
-            s.material.diffuse_material = Vec3( 0.,0.,1. );
-            s.material.specular_material = Vec3(  1.,1.,1. );
+            s.material.diffuse_material = Vec3( 0.91,0.71,0.46 );
+            s.material.specular_material = Vec3(1.0,1.0,1.0);
             s.material.shininess = 16;
             s.material.transparency = 0.;
             s.material.index_medium = 0.;
