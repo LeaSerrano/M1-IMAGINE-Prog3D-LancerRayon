@@ -85,7 +85,7 @@ public:
         RayTriangleIntersection result;
         // 1) check that the ray is not parallel to the triangle:
 
-        /*if (!isParallelTo(ray)) {
+        //if (!isParallelTo(ray)) {
 
         // 2) check that the triangle is "in front of" the ray:
 
@@ -94,7 +94,7 @@ public:
 
         // 4) Finally, if all conditions were met, then there is an intersection! :
 
-           Vec3 bottomLeft = m_c[0];
+           /*Vec3 bottomLeft = m_c[0];
             Vec3 bottomRight = m_c[1];
             Vec3 up = m_c[2];
 
@@ -134,6 +134,11 @@ public:
         result.intersection = P;
         result.normal = this->normal();
         result.normal.normalize();
+        result.intersectionExists = true;
+        /*}
+        else {
+            result.intersectionExists = false;
+        }*/
 
         return result;
     }

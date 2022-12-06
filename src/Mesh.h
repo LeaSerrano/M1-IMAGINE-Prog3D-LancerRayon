@@ -205,9 +205,17 @@ public:
         // Creer un objet Triangle pour chaque face
         // Vous constaterez des problemes de précision
         // solution : ajouter un facteur d'échelle lors de la création du Triangle : float triangleScaling = 1.000001;
+        RayTriangleIntersection rayMesh;
+        MeshTriangle meshTriangle;
 
-        /*RayTriangleIntersection triangleIntersect;
-        triangleIntersect.getIntersection(ray);*/
+         for (int i = 0; i < triangles.size(); i++) {
+            Triangle triangle = Triangle(vertices[triangles[i][0]].position, vertices[triangles[i][1]].position, vertices[triangles[i][2]].position);
+            rayMesh = triangle.getIntersection(ray);
+            if(rayMesh.t >= 0 && rayMesh.t < closestIntersection.t && rayMesh.intersectionExists){
+                closestIntersection = intersectionExists
+ 
+            }
+        }
 
         return closestIntersection;
     }
