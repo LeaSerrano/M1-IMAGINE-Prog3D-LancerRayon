@@ -45,7 +45,9 @@ public:
         //TODO completer
         return result;
     }
-    float distanceToSupportPlane( Vec3 const & p ) const { return sqrt( squareDistanceToSupportPlane(p) ); }
+    float distanceToSupportPlane( Vec3 const & p ) const { 
+        return sqrt( squareDistanceToSupportPlane(p) ); 
+    }
     bool isParallelTo( Line const & L ) const {
         bool result;
         //TODO completer
@@ -110,6 +112,9 @@ public:
             if (t >= 0 && u < RL.norm() && u > 0 && v < UB.norm() && v > 0) {
                 result.intersectionExists = true;
                 result.t = t;
+                result.intersection = P;
+                result.normal = this->normal();
+                result.normal.normalize();
             }
             else {
                 result.intersectionExists = false;
@@ -118,6 +123,17 @@ public:
         else {
             result.intersectionExists = false;
         }*/
+
+        Vec3 bottomLeft = m_c[0];
+        Vec3 bottomRight = m_c[1];
+        Vec3 up = m_c[2];
+
+        float t = Vec3::dot(bottomLeft-ray.origin(), normal())/Vec3::dot(ray.direction(), normal());
+        Vec3 P = ray.origin() + t*ray.direction();
+        
+        result.intersection = P;
+        result.normal = this->normal();
+        result.normal.normalize();
 
         return result;
     }

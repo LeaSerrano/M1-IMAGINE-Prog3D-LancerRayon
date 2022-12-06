@@ -136,8 +136,20 @@ public:
         //result.intersectionExists = true;
 
         RaySceneIntersection result;
+        RayTriangleIntersection rayMesh;
         RaySphereIntersection raySphere;
         RaySquareIntersection raySquare;
+
+        for (int i = 0; i < meshes.size(); i++) {
+            rayMesh = meshes[i].intersect(ray);
+            if(rayMesh.t >= 0 && rayMesh.t < result.t && rayMesh.intersectionExists && rayMesh.t > znear){
+                result.rayMeshIntersection = rayMesh;
+                result.intersectionExists = true;
+                result.objectIndex = i;
+                result.typeOfIntersectedObject = 0;
+                result.t = rayMesh.t;
+            }
+        }
 
         for (int i = 0; i < spheres.size(); i++) {
             raySphere = spheres[i].intersect(ray);
@@ -498,19 +510,16 @@ public:
             s.material.index_medium = 0.;
         }
 
-        /*{ 
-            spheres.resize( spheres.size() + 1 );
-            Sphere & s = spheres[spheres.size() - 1];
-            s.m_center = Vec3(0, 0, 2);
-            s.m_radius = 0.2f;
-            s.build_arrays();
-            s.material.type = Material_Glass;
-            s.material.diffuse_material = Vec3( 0., 0., 0);
-            s.material.specular_material = Vec3(  1.,1.,1. );
-            s.material.shininess = 16;
-            s.material.transparency = 0.;
-            s.material.index_medium = 0.;
-        }*/
+        { 
+            meshes.resize(meshes.size() + 1);
+            Mesh & m = meshes[meshes.size() - 1];
+            m.loadOFF("data/suzanne.off");
+            m.centerAndScaleToUnit();
+            m.build_arrays();
+            m.material.diffuse_material = Vec3(1, 0, 1);
+            m.material.specular_material = Vec3(1, 0, 1);
+            m.material.shininess = 16;
+        }
 
     }
 

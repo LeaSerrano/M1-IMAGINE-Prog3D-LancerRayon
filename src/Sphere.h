@@ -81,6 +81,20 @@ public:
         }
     }
 
+    /*Vec3 reflection(Vec3 view, Vec3 normal) {
+        return view - 2*Vec3::dot(view, normal) * normal;
+    }
+
+    float scattering(Ray ray, RaySphereIntersection intersection, Vec3 attenuation) {
+        Vec3 reflected = reflection(ray.direction(), intersection.normal);
+        Ray scattered = Ray(intersection.intersection, reflected);
+
+        float result = Vec3::dot(scattered.direction(), intersection.normal);
+        if (result > 0) {
+            return result;
+        }
+    }*/
+
 
     RaySphereIntersection intersect(const Ray &ray) const {
         //TODO calcul l'intersection rayon sphere
