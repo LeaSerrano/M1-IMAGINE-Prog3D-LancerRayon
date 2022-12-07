@@ -4,6 +4,7 @@
 #include "imageLoader.h"
 #include "Vec3.h"
 #include <cmath>
+#include "Mesh.h"
 
 #include <GL/glut.h>
 

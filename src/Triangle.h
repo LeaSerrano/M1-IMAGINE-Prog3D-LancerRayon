@@ -51,7 +51,7 @@ public:
     bool isParallelTo( Line const & L ) const {
         bool result;
         //TODO completer
-        Vec3 OD = L.direction() - L.origin();
+        /*Vec3 OD = L.direction() - L.origin();
 
         Vec3 P0P1 = m_c[1] - m_c[0];
         Vec3 P1P2 = m_c[2] - m_c[1];
@@ -67,7 +67,7 @@ public:
             result = true;
         }
 
-        result = false;
+        result = false;*/
 
         return result;
     }
@@ -85,8 +85,6 @@ public:
         RayTriangleIntersection result;
         // 1) check that the ray is not parallel to the triangle:
 
-        //if (!isParallelTo(ray)) {
-
         // 2) check that the triangle is "in front of" the ray:
 
         // 3) check that the intersection point is inside the triangle:
@@ -94,27 +92,35 @@ public:
 
         // 4) Finally, if all conditions were met, then there is an intersection! :
 
-           /*Vec3 bottomLeft = m_c[0];
-            Vec3 bottomRight = m_c[1];
-            Vec3 up = m_c[2];
+        //float area = m_normal.length()/2;
 
-            float t = Vec3::dot(bottomLeft-ray.origin(), normal())/Vec3::dot(ray.direction(), normal());
-            Vec3 P = ray.origin() + t*ray.direction();
+        if (Vec3::dot(m_normal, ray.direction()) != 0) {
+            float D = Vec3::dot(m_normal, m_c[0]);
+            float t = (D - Vec3::dot(m_normal, ray.origin()))/Vec3::dot(m_normal, ray.direction());
 
-            Vec3 RL = bottomLeft - bottomRight;
-            Vec3 RP = P - bottomRight;
-            float u = (Vec3::dot(RL, RP))/RL.length();
+            if (t >= 0) {
+                Vec3 P = ray.origin() + t*ray.direction();
 
-            Vec3 UB = bottomLeft - up;
-            Vec3 UP = P - up;
-            float v = (Vec3::dot(UB, UP))/UB.length();
+                if (Vec3::dot(m_normal, Vec3::cross(m_c[1] - m_c[0], P - m_c[0])) > 0 && Vec3::dot(m_normal, Vec3::cross(m_c[2] - m_c[1], P - m_c[1])) > 0 && Vec3::dot(m_normal, Vec3::cross(m_c[0] - m_c[2], P - m_c[2])) > 0) {
+                    result.intersection = P;
+                    result.intersectionExists = true;
+                    result.t = t;
+                    result.normal = m_normal;
+                    result.normal.normalize();
 
-            if (t >= 0 && u < RL.norm() && u > 0 && v < UB.norm() && v > 0) {
-                result.intersectionExists = true;
-                result.t = t;
-                result.intersection = P;
-                result.normal = this->normal();
-                result.normal.normalize();
+                    float areaP12 = Vec3::dot(Vec3::cross(m_c[2] - m_c[1], P - m_c[1]), m_normal);
+                    float areaOP2 = Vec3::dot(Vec3::cross(m_c[0] - m_c[2], P - m_c[2]), m_normal);
+                    float area01P = Vec3::dot(Vec3::cross(m_c[1] - m_c[0], P - m_c[0]), m_normal);
+                    float area012 = Vec3::dot(Vec3::cross(m_c[1] - m_c[0], m_c[2] - m_c[0]), m_normal);
+
+                    result.w0 = areaP12/area012;
+                    result.w1 = areaOP2/area012;
+                    result.w2 = area01P/area012;
+                }
+
+                else {
+                    result.intersectionExists = false;
+                }
             }
             else {
                 result.intersectionExists = false;
@@ -122,23 +128,7 @@ public:
         }
         else {
             result.intersectionExists = false;
-        }*/
-
-        Vec3 bottomLeft = m_c[0];
-        Vec3 bottomRight = m_c[1];
-        Vec3 up = m_c[2];
-
-        float t = Vec3::dot(bottomLeft-ray.origin(), normal())/Vec3::dot(ray.direction(), normal());
-        Vec3 P = ray.origin() + t*ray.direction();
-        
-        result.intersection = P;
-        result.normal = this->normal();
-        result.normal.normalize();
-        result.intersectionExists = true;
-        /*}
-        else {
-            result.intersectionExists = false;
-        }*/
+        }
 
         return result;
     }
