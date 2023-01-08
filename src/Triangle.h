@@ -92,8 +92,6 @@ public:
 
         // 4) Finally, if all conditions were met, then there is an intersection! :
 
-        //float area = m_normal.length()/2;
-
         if (Vec3::dot(m_normal, ray.direction()) != 0) {
             float D = Vec3::dot(m_normal, m_c[0]);
             float t = (D - Vec3::dot(m_normal, ray.origin()))/Vec3::dot(m_normal, ray.direction());
@@ -132,5 +130,6 @@ public:
 
         return result;
     }
+
 };
 #endif

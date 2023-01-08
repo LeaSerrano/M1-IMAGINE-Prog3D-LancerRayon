@@ -167,6 +167,9 @@ void idle () {
 
 
 void ray_trace_from_camera() {
+    time_t seconds1;
+    seconds1 = time (NULL);
+
     int w = glutGet(GLUT_WINDOW_WIDTH)  ,   h = glutGet(GLUT_WINDOW_HEIGHT);
     std::cout << "Ray tracing a " << w << " x " << h << " image" << std::endl;
     camera.apply();
@@ -188,6 +191,12 @@ void ray_trace_from_camera() {
             image[x + y*w] /= nsamples;
         }
     }
+
+    time_t seconds2;
+    seconds2 = time (NULL);
+    //printf ("%ld seconds after", seconds2);
+
+    printf("Temps de rendu : %ld", seconds2-seconds1);
     std::cout << "\tDone" << std::endl;
 
     std::string filename = "./rendu.ppm";
@@ -234,6 +243,7 @@ void key (unsigned char keyPressed, int x, int y) {
         camera.apply();
         rays.clear();
         ray_trace_from_camera();
+
         break;
     case '+':
         selected_scene++;
@@ -321,12 +331,11 @@ int main (int argc, char ** argv) {
 
     camera.move(0., 0., -3.1);
     selected_scene=0;
-    scenes.resize(3);
-    /*scenes[0].setup_single_sphere();
+    scenes.resize(4);
+    scenes[0].setup_single_sphere();
     scenes[1].setup_single_square();
-    scenes[2].setup_cornell_box();*/
-    scenes[0].setup_cornell_box();
-    scenes[1].setup_cornell_box_base();
+    scenes[2].setup_cornell_box();
+    scenes[3].setup_cornell_box_personnalised();
 
     glutMainLoop ();
     return EXIT_SUCCESS;

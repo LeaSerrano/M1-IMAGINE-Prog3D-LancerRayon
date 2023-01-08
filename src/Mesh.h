@@ -213,7 +213,7 @@ public:
             triangleIntersect = triangle.getIntersection(ray);
             if (triangleIntersect.t < closestIntersection.t && triangleIntersect.intersectionExists) {
                 //triangleIntersect.intersection *= triangleScaling;
-                //closestIntersection = triangleIntersect;
+                
                 closestIntersection.intersectionExists = true;
                 closestIntersection.t = triangleIntersect.t;
                 closestIntersection.w0 = triangleIntersect.w0;
@@ -227,6 +227,7 @@ public:
 
         return closestIntersection;
     }
+
 };
 
 

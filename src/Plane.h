@@ -31,6 +31,8 @@ public:
         // you should check first that the line is not parallel to the plane!
         Vec3 result;
         //TODO completer
+        // assuming vectors are all normalized
+  
         return result;
     }
 };

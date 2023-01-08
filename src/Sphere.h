@@ -129,5 +129,6 @@ public:
 
         return intersection;
     }
+
 };
 #endif
